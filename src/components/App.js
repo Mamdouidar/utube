@@ -1,31 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SearchBar from './SearchBar';
 import VideoList from './VideoList';
-import youtube from '../apis/youtube';
-
-const KEY = "AIzaSyAXXoZ3hGpu67qnSP7_2r56svfPMCq75qs";
+import VideoDetail from './VideoDetail';
+import useVideos from '../hooks/useVideos';
 
 const App = () => {
-    const [ videos, setVideos ] = useState([]);
-
-    const onTermSubmit = async term => {
-        const response = await youtube.get('/search', {
-            params: {
-                q: term,
-                part: 'snippet',
-                type: 'video',
-                maxResults: 50,
-                key: KEY
-            }
-        });
-        setVideos(response.data.items);
-    };
     
+    const [ selectedVideo, setSelectedVideo ] = useState(null);
+    const [ videos, search] = useVideos('rick roll');
+
+    useEffect(() => {
+        setSelectedVideo(videos[0]);
+    }, [videos]);     
 
     return (
         <div>
-            <SearchBar onFormSubmit={onTermSubmit} />
-            <VideoList videos={videos} />
+            <SearchBar onFormSubmit={search} />
+            <VideoDetail video={selectedVideo} />
+            <VideoList onVideoSelect={setSelectedVideo} videos={videos} />
         </div>
     );
 };
